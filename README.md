@@ -8,4 +8,10 @@
 
  1. [Using Xacro to Clean Up a URDF File](https://docs.ros.org/en/rolling/Tutorials/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html) - Learn some tricks to reduce the amount of code in a URDF file using Xacro
 
-See also [urdf_sim_tutorial](https://github.com/ros/urdf_sim_tutorial) for the final tutorial: [Using a URDF in Gazebo](https://wiki.ros.org/urdf/Tutorials/Using%20a%20URDF%20in%20Gazebo) - Preliminary tutorial on how to spawn and control your robot in Gazebo.
+See also [urdf_sim_tutorial](https://github.com/ros/urdf_sim_tutorial) for the final tutorial: [Using a URDF in Gazebo](https://wiki.ros.org/urdf/Tutorials/Using%20a%20URDF%20in%20Gazebo) - Preliminary tutorial on how to spawn and control your robot in Gazebo.i
+
+
+
+run any model from urdf/ folder:
+
+ros2 launch -d urdf_tutorial display.launch.py model:=`ros2 pkg prefix --share urdf_tutorial`/urdf/06-flexible.urdf
