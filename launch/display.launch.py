@@ -1,35 +1,27 @@
-from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-from launch_ros.substitutions import FindPackageShare
+import launch
+from launch.substitutions import Command, LaunchConfiguration
+import launch_ros
+import os
 
 
 def generate_launch_description():
-    ld = LaunchDescription()
 
-    urdf_tutorial_path = FindPackageShare('urdf_tutorial')
-    default_model_path = PathJoinSubstitution(['urdf', '01-myfirst.urdf'])
-    default_rviz_config_path = PathJoinSubstitution([urdf_tutorial_path, 'rviz', 'urdf.rviz'])
+    pkg_share = launch_ros.substitutions.FindPackageShare(package='urdf_tutorial').find('urdf_tutorial')
+    default_model_path = os.path.join(pkg_share, 'urdf/01-myfirst.urdf')
+    default_rviz_config_path = os.path.join(pkg_share, 'rviz/urdf.rviz')
 
-    # These parameters are maintained for backwards compatibility
-    gui_arg = DeclareLaunchArgument(name='gui', default_value='true', choices=['true', 'false'],
-                                    description='Flag to enable joint_state_publisher_gui')
-    ld.add_action(gui_arg)
-    rviz_arg = DeclareLaunchArgument(name='rvizconfig', default_value=default_rviz_config_path,
-                                     description='Absolute path to rviz config file')
-    ld.add_action(rviz_arg)
+    rviz_node = launch_ros.actions.Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', LaunchConfiguration('rvizconfig')],
+    )
 
-    # This parameter has changed its meaning slightly from previous versions
-    ld.add_action(DeclareLaunchArgument(name='model', default_value=str(default_model_path),
-                                        description='Path to robot urdf file relative to urdf_tutorial package'))
+    return launch.LaunchDescription([
+        launch.actions.DeclareLaunchArgument(name='gui', default_value='True', description='Flag to enable joint_state_publisher_gui'),
+        launch.actions.DeclareLaunchArgument(name='model', default_value=default_model_path, description='Absolute path to robot urdf file'),
+        launch.actions.DeclareLaunchArgument(name='rvizconfig', default_value=default_rviz_config_path, description='Absolute path to rviz config file'),
+        rviz_node
+    ])
 
-    ld.add_action(IncludeLaunchDescription(
-        PathJoinSubstitution([FindPackageShare('urdf_launch'), 'launch', 'display.launch.py']),
-        launch_arguments={
-            'urdf_package': 'urdf_tutorial',
-            'urdf_package_path': LaunchConfiguration('model'),
-            'rviz_config': LaunchConfiguration('rvizconfig'),
-            'jsp_gui': LaunchConfiguration('gui')}.items()
-    ))
-
-    return ld
